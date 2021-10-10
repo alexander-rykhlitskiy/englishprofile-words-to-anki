@@ -1,0 +1,17 @@
+{
+  "name": "englishprofile-words",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "csv-stringify": "^5.6.5",
+    "jsdom": "^18.0.0",
+    "node-fetch": "^3.0.0"
+  }
+}
