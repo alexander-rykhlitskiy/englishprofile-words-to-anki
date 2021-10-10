@@ -7,8 +7,8 @@ import { convertWordDetailsToCsvRowItems } from "./src/anki.js";
 
 const ARGV = process.argv.slice(2);
 
-const WORDS_LIST_FILE_PATH = ARGV[0];
-const ENGLISHPROFILE_HTML_FILE_PATH = ARGV[1];
+const CEFR_LEVEL = ARGV[0];
+const WORDS_LIST_FILE_PATH = ARGV[1];
 
 const wordsDetailsCachePath = path.join("cache", "_words_details.json");
 
@@ -16,10 +16,7 @@ let wordsDetails;
 if (fs.existsSync(wordsDetailsCachePath)) {
   wordsDetails = JSON.parse(fs.readFileSync(wordsDetailsCachePath));
 } else {
-  wordsDetails = await fetchWordsDetails(
-    WORDS_LIST_FILE_PATH,
-    ENGLISHPROFILE_HTML_FILE_PATH
-  );
+  wordsDetails = await fetchWordsDetails(CEFR_LEVEL, WORDS_LIST_FILE_PATH);
   fs.writeFileSync(wordsDetailsCachePath, JSON.stringify(wordsDetails));
 }
 

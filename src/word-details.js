@@ -3,12 +3,37 @@ import { JSDOM } from "jsdom";
 
 import { fetchHtml, closest } from "./utils.js";
 
+const CEFR_LEVELS = {
+  A1: 1,
+  A2: 2,
+  B1: 3,
+  B2: 4,
+  C1: 5,
+  C2: 6,
+};
+
+async function fetchWordsHtmlByLevel(cefrLevel) {
+  const wordsHtml = await fetchHtml(
+    "https://www.englishprofile.org/american-english",
+    `_${cefrLevel}`,
+    {
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+      },
+      body: `filter_custom_Level%5B%5D=${CEFR_LEVELS[cefrLevel]}&limit=0`, // no limit
+      method: "POST",
+    }
+  );
+  const wordsDom = new JSDOM(wordsHtml);
+  return wordsDom.window.document;
+}
+
 async function fetchWordDetails(word, wordTr) {
   const level = wordTr.querySelector(".label").textContent;
   const wordDetailsUrl = wordTr.querySelector("td:last-child a").href;
-  const cacheFileName = `${word}_${wordDetailsUrl.replace(/\W/g, "_")}.html`;
-  const document = new JSDOM(await fetchHtml(wordDetailsUrl, cacheFileName))
-    .window.document;
+  const document = new JSDOM(
+    await fetchHtml(wordDetailsUrl, word)
+  ).window.document;
   const infoBody = document.querySelector(`.label-${level}`).parentNode;
   return {
     word: word,
@@ -23,15 +48,10 @@ async function fetchWordDetails(word, wordTr) {
   };
 }
 
-async function fetchWordsDetails(
-  wordsListFilePath,
-  englishprofileHTMLFilePath
-) {
+async function fetchWordsDetails(cefrLevel, wordsListFilePath) {
   const words = fs.readFileSync(wordsListFilePath, "utf8").split("\n");
-  const wordsHtml = fs.readFileSync(englishprofileHTMLFilePath, "utf8");
+  const document = await fetchWordsHtmlByLevel(cefrLevel);
 
-  const wordsDom = new JSDOM(wordsHtml);
-  const document = wordsDom.window.document;
   const wordTds = [...document.querySelectorAll("td:first-child")];
 
   const wordsDetails = [];

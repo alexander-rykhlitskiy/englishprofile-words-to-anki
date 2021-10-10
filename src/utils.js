@@ -20,14 +20,14 @@ function closest(el, selector) {
   return el;
 }
 
-async function fetchHtml(url, cacheFileName) {
+async function fetchHtml(url, cacheFileNamePrefix = '', fetchOptions = {}) {
   const cacheDirPath = "cache";
-  const cachePath = path.join(cacheDirPath, cacheFileName);
+  const cachePath = path.join(cacheDirPath, `${cacheFileNamePrefix}_${url.replace(/\W/g, "_")}.html`);
   if (fs.existsSync(cachePath)) {
     return fs.readFileSync(cachePath, "utf8");
   } else {
     fs.mkdirSync(cacheDirPath, { recursive: true });
-    const html = await (await fetch(url)).text();
+    const html = await (await fetch(url, fetchOptions)).text();
     await new Promise((r) => setTimeout(r, 2000));
     fs.writeFileSync(cachePath, html);
     return html;
