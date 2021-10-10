@@ -3,7 +3,7 @@ function getATag(wordDetails) {
 }
 
 function convertWordDetailsToCsvRowItems(wordDetails) {
-  const front = wordDetails.word;
+  const front = wordDetails.definition;
   let back;
   const tags = wordDetails.level;
 
@@ -17,9 +17,9 @@ function convertWordDetailsToCsvRowItems(wordDetails) {
         regex,
         `$1<b>${getATag(wordDetails)}</b>$3`
       );
-      if (index > 0) {
-        htmlExample = `[${htmlExample}]`;
-      }
+    }
+    if (index > 0) {
+      htmlExample = `[${htmlExample}]`;
     }
     return htmlExample;
   });

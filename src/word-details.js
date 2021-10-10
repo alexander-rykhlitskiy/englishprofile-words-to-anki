@@ -1,3 +1,4 @@
+import fs from "fs";
 import { JSDOM } from "jsdom";
 
 import { fetchHtml, closest } from "./utils.js";
@@ -5,7 +6,8 @@ import { fetchHtml, closest } from "./utils.js";
 async function fetchWordDetails(word, wordTr) {
   const level = wordTr.querySelector(".label").textContent;
   const wordDetailsUrl = wordTr.querySelector("td:last-child a").href;
-  const document = new JSDOM(await fetchHtml(wordDetailsUrl, `${word}.html`))
+  const cacheFileName = `${word}_${wordDetailsUrl.replace(/\W/g, "_")}.html`;
+  const document = new JSDOM(await fetchHtml(wordDetailsUrl, cacheFileName))
     .window.document;
   const infoBody = document.querySelector(`.label-${level}`).parentNode;
   return {
@@ -33,13 +35,19 @@ async function fetchWordsDetails(
   const wordTds = [...document.querySelectorAll("td:first-child")];
 
   const wordsDetails = [];
-  for (const word of words.slice(0, 2)) {
-    // xpath works really slow. //td[contains(text(),'${word}')] - about 50 seconds
-    const wordTr = wordTds.find((td) => td.textContent === word).parentNode;
-    const wordDetails = await fetchWordDetails(word, wordTr);
-    wordsDetails.push(wordDetails);
+  for (const word of words) {
+    if (!word) continue;
 
-    console.log(`Downloaded word "${word}" (${JSON.stringify(wordDetails)})`);
+    console.log(`Processing the word "${word}"`);
+
+    try {
+      // xpath works really slow. //td[contains(text(),'${word}')] - about 50 seconds
+      const wordTr = wordTds.find((td) => td.textContent === word).parentNode;
+      const wordDetails = await fetchWordDetails(word, wordTr);
+      wordsDetails.push(wordDetails);
+    } catch (error) {
+      console.error(`Error processing the word "${word}":`, error);
+    }
   }
   return wordsDetails;
 }
