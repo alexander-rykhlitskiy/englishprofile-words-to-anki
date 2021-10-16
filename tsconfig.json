@@ -5,7 +5,7 @@
     "allowJs": true,
     "target": "es2021", // code compiled to ES6 also works, ES5 doesn't
     "moduleResolution": "node", // for `import { JSDOM } from "jsdom";`
-    "allowSyntheticDefaultImports": true // for `import stringify from "csv-stringify";`
+    "allowSyntheticDefaultImports": true, // for `import stringify from "csv-stringify";`
   },
   "include": ["index.ts"]
 }

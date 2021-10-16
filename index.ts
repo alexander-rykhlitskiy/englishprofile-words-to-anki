@@ -10,15 +10,7 @@ const ARGV = process.argv.slice(2);
 const CEFR_LEVEL = ARGV[0];
 const WORDS_LIST_FILE_PATH = ARGV[1];
 
-const wordsDetailsCachePath = path.join("cache", "_words_details.json");
-
-let wordsDetails;
-if (fs.existsSync(wordsDetailsCachePath)) {
-  wordsDetails = JSON.parse(fs.readFileSync(wordsDetailsCachePath, 'utf8'));
-} else {
-  wordsDetails = await fetchWordsDetails(CEFR_LEVEL, WORDS_LIST_FILE_PATH);
-  fs.writeFileSync(wordsDetailsCachePath, JSON.stringify(wordsDetails));
-}
+const wordsDetails = await fetchWordsDetails(CEFR_LEVEL, WORDS_LIST_FILE_PATH);
 
 const csvRecords = wordsDetails.map((wordDetail) =>
   convertWordDetailsToCsvRowItems(wordDetail)

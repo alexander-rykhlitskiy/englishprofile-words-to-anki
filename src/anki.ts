@@ -6,7 +6,7 @@ function getATag(wordDetails: WordDetail) {
 
 function convertWordDetailsToCsvRowItems(wordDetails: WordDetail): string[] {
   const front = wordDetails.definition;
-  let back;
+  let back: string;
   const tags = wordDetails.level;
 
   let linkAdded = false;
@@ -25,10 +25,17 @@ function convertWordDetailsToCsvRowItems(wordDetails: WordDetail): string[] {
     }
     return htmlExample;
   });
-  back = `${examples.join("<br>")}<br><br>[${wordDetails.ipa}]<br>`;
+  back = `${examples.join("<br>")}<br><br>[${wordDetails.ipa}]<br><br>`;
+
+  if (wordDetails.wordFamilies.length) {
+    const family = wordDetails.wordFamilies
+      .map((family) => `<b>${family.partOfSpeech}</b> ${family.words.join("")}`)
+      .join("<br>");
+    back = `${back}[${family}]<br><br>`;
+  }
 
   if (!linkAdded) {
-    back = `${back}${getATag(wordDetails)}<br>`;
+    back = `${back}[<b>${getATag(wordDetails)}</b>]<br><br>`;
   }
 
   return [front, back, tags];

@@ -19,6 +19,12 @@ interface WordDetail {
   examples: string[],
   url: string,
   level: string,
+  wordFamilies: WordFamily[]
+}
+
+interface WordFamily {
+  partOfSpeech: string,
+  words: string[],
 }
 
 async function fetchWordsHtmlByLevel(cefrLevel: string): Promise<Document> {
@@ -35,6 +41,17 @@ async function fetchWordsHtmlByLevel(cefrLevel: string): Promise<Document> {
   );
   const wordsDom = new JSDOM(wordsHtml);
   return wordsDom.window.document;
+}
+
+function getWordFamilies(infoBody: ParentNode) {
+  const wordsRows = closest(infoBody, '.pos_section').querySelectorAll('.wf_body div');
+  return [...wordsRows].map((div) => {
+    const spans = [...div.querySelectorAll('span')];
+    return {
+      partOfSpeech: spans[0].textContent,
+      words: spans.slice(1).map(span => span.textContent),
+    }
+  });
 }
 
 async function fetchWordDetails(word: string, wordTr: ParentNode): Promise<WordDetail> {
@@ -55,6 +72,7 @@ async function fetchWordDetails(word: string, wordTr: ParentNode): Promise<WordD
     ),
     url: wordDetailsUrl,
     level: level,
+    wordFamilies: getWordFamilies(infoBody),
   };
 }
 
