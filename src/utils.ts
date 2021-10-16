@@ -1,15 +1,12 @@
 import fetch from "node-fetch";
-import fs from "fs";
-import path from "path";
+import * as fs from "fs";
+import * as path from "path";
 
 // https://stackoverflow.com/questions/15329167/closest-ancestor-matching-selector-using-native-dom
 // get nearest parent element matching selector
-function closest(el, selector) {
-  var matchesSelector =
-    el.matches ||
-    el.webkitMatchesSelector ||
-    el.mozMatchesSelector ||
-    el.msMatchesSelector;
+function closest(el: ParentNode, selector: string): ParentNode {
+  // @ts-ignore: Property 'matches' does not exist on type 'ParentNode'.ts(2339)
+  var matchesSelector = el.matches;
 
   while (el) {
     if (matchesSelector.call(el, selector)) {
@@ -20,7 +17,7 @@ function closest(el, selector) {
   return el;
 }
 
-async function fetchHtml(url, cacheFileNamePrefix = '', fetchOptions = {}) {
+async function fetchHtml(url: string, cacheFileNamePrefix = '', fetchOptions = {}): Promise<string> {
   const cacheDirPath = "cache";
   const cachePath = path.join(cacheDirPath, `${cacheFileNamePrefix}_${url.replace(/\W/g, "_")}.html`);
   if (fs.existsSync(cachePath)) {

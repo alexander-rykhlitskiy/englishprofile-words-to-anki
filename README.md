@@ -7,7 +7,8 @@ Script to download EnglishProfile words grouped by level. It generates CSV for i
 ## Usage
 ```bash
 npm i
-node index.js B2 /path/to/file/with/words.txt
+npx tsc --watch # or npx tsc
+node built/index.js B2 /path/to/file/with/words.txt
 ```
 
 `B2` - CEFR level (A1, A2, B1, B2, C1, C2). The words are found with this level selected on this page https://www.englishprofile.org/american-english.

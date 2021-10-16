@@ -1,8 +1,8 @@
-import fs from "fs";
-import path from "path";
+import * as fs from "fs";
+import * as path from "path";
 import stringify from "csv-stringify";
 
-import fetchWordsDetails from "./src/word-details.js";
+import { fetchWordsDetails } from "./src/word-details.js";
 import { convertWordDetailsToCsvRowItems } from "./src/anki.js";
 
 const ARGV = process.argv.slice(2);
@@ -14,7 +14,7 @@ const wordsDetailsCachePath = path.join("cache", "_words_details.json");
 
 let wordsDetails;
 if (fs.existsSync(wordsDetailsCachePath)) {
-  wordsDetails = JSON.parse(fs.readFileSync(wordsDetailsCachePath));
+  wordsDetails = JSON.parse(fs.readFileSync(wordsDetailsCachePath, 'utf8'));
 } else {
   wordsDetails = await fetchWordsDetails(CEFR_LEVEL, WORDS_LIST_FILE_PATH);
   fs.writeFileSync(wordsDetailsCachePath, JSON.stringify(wordsDetails));

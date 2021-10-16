@@ -1,4 +1,4 @@
-import fs from "fs";
+import * as fs from "fs";
 import { JSDOM } from "jsdom";
 
 import { fetchHtml, closest } from "./utils.js";
@@ -12,7 +12,16 @@ const CEFR_LEVELS = {
   C2: 6,
 };
 
-async function fetchWordsHtmlByLevel(cefrLevel) {
+interface WordDetail {
+  word: string,
+  definition: string,
+  ipa: string,
+  examples: string[],
+  url: string,
+  level: string,
+}
+
+async function fetchWordsHtmlByLevel(cefrLevel: string): Promise<Document> {
   const wordsHtml = await fetchHtml(
     "https://www.englishprofile.org/american-english",
     `_${cefrLevel}`,
@@ -28,8 +37,9 @@ async function fetchWordsHtmlByLevel(cefrLevel) {
   return wordsDom.window.document;
 }
 
-async function fetchWordDetails(word, wordTr) {
+async function fetchWordDetails(word: string, wordTr: ParentNode): Promise<WordDetail> {
   const level = wordTr.querySelector(".label").textContent;
+  // @ts-ignore: Property 'href' does not exist on type 'Element'.ts(2339)
   const wordDetailsUrl = wordTr.querySelector("td:last-child a").href;
   const document = new JSDOM(
     await fetchHtml(wordDetailsUrl, word)
@@ -48,7 +58,7 @@ async function fetchWordDetails(word, wordTr) {
   };
 }
 
-async function fetchWordsDetails(cefrLevel, wordsListFilePath) {
+async function fetchWordsDetails(cefrLevel: string, wordsListFilePath: fs.PathOrFileDescriptor): Promise<WordDetail[]> {
   const words = fs.readFileSync(wordsListFilePath, "utf8").split("\n");
   const document = await fetchWordsHtmlByLevel(cefrLevel);
 
@@ -72,4 +82,4 @@ async function fetchWordsDetails(cefrLevel, wordsListFilePath) {
   return wordsDetails;
 }
 
-export default fetchWordsDetails;
+export { fetchWordsDetails, WordDetail };

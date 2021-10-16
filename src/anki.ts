@@ -1,8 +1,10 @@
-function getATag(wordDetails) {
+import { WordDetail } from "./word-details";
+
+function getATag(wordDetails: WordDetail) {
   return `<a href='${wordDetails.url}'>${wordDetails.word}</a>`;
 }
 
-function convertWordDetailsToCsvRowItems(wordDetails) {
+function convertWordDetailsToCsvRowItems(wordDetails: WordDetail): string[] {
   const front = wordDetails.definition;
   let back;
   const tags = wordDetails.level;
