@@ -18,6 +18,8 @@ Result CSV file is located in the root folder of this repository. Its name is th
 
 ## ToDo
 
+- [ ] make forms in the sentense bold and liked
+- [ ] make initial form in the end bold
 - [ ] use British words too
 
     lap
@@ -27,3 +29,6 @@ Result CSV file is located in the root folder of this repository. Its name is th
     aubergine
 
 - [ ] add part of speech
+- [ ] fetch definitions from lower and the same levels
+- [ ] add word family (words of the same root)
+- [ ] do not speak initial form in the end
