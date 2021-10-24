@@ -4,13 +4,18 @@ function getATag(wordDetails: WordDetail) {
   return `<a href='${wordDetails.url}'>${wordDetails.word}</a>`;
 }
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+function escapeRegExp(string: string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
 function convertWordDetailsToCsvRowItems(wordDetails: WordDetail): string[] {
   const front = wordDetails.definition;
   let back: string;
   const tags = wordDetails.level;
 
   let linkAdded = false;
-  const regex = new RegExp(`(\\W|^)(${wordDetails.word})(\\W|$)`, "i");
+  const regex = new RegExp(`(\\W|^)(${escapeRegExp(wordDetails.word)})(\\W|$)`, "i");
   const examples = wordDetails.examples.map((example, index) => {
     let htmlExample = example;
     if (example.match(regex)) {

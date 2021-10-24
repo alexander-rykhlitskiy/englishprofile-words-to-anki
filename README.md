@@ -8,22 +8,31 @@ Script to download EnglishProfile words grouped by level. It generates CSV for i
 ```bash
 npm i
 
+npm run generate-csv -- --help
+
 npx tsc --watch # or npx tsc
-node built/index.js B2 /path/to/file/with/words.txt
+node built/index.js --wordsFile /path/to/file/with/words.txt
+
+node built/index.js --cefrLevel B2 --wordsFile /path/to/file/with/words.txt
 # or
-npm run generate-csv B2 /path/to/file/with/words.txt
+npm run generate-csv -- --cefrLevel B2 --wordsFile /path/to/file/with/words.txt
+npm run-script generate-csv -- -m -w words_lists/idioms.txt
 ```
-
-`B2` - CEFR level (A1, A2, B1, B2, C1, C2). The words are found with this level selected on this page https://www.englishprofile.org/american-english.
-
-`/path/to/file/with/words.txt` - path to the file with each word on a new line. The words should be from the page mentioned above.
 
 Result CSV file is located in the root folder of this repository. Its name is the same as the name of the file with words, but with `csv` extension. So for the example above it's going to be `words.csv`.
 
 ## ToDo
 
-- [ ] make forms in the sentense bold and liked
+- [x] add word family (words of the same root)
+- [x] do not speak initial form in the end
 - [x] make initial form in the end bold
+- [x] new line after first example
+- [x] fetch idioms and phrases
+- [ ] https://www.englishprofile.org/american-english/words/usdetail/798
+- [ ] These are words often used in combination with turmoil. https://dictionary.cambridge.org/dictionary/english/turmoil
+- [ ] show number of verbs, nouns on front side
+- [ ] fetch definitions from ALL levels
+- [ ] make forms in the sentense bold and linked
 - [ ] use British words too
 
     lap
@@ -33,6 +42,3 @@ Result CSV file is located in the root folder of this repository. Its name is th
     aubergine
 
 - [ ] add part of speech
-- [ ] fetch definitions from lower and the same levels
-- [x] add word family (words of the same root)
-- [x] do not speak initial form in the end

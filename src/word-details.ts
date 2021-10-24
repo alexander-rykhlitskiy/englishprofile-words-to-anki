@@ -27,15 +27,21 @@ interface WordFamily {
   words: string[],
 }
 
-async function fetchWordsHtmlByLevel(cefrLevel: string): Promise<Document> {
+async function fetchWordsHtmlByLevel(cefrLevel: string | undefined) {
+  let body = `limit=0`; // no limit
+  if (cefrLevel) {
+    body = [body, `filter_custom_Level%5B%5D=${CEFR_LEVELS[cefrLevel]}`].join('&');
+  }
+  const cacheFileNamePrefix = cefrLevel;
+
   const wordsHtml = await fetchHtml(
     "https://www.englishprofile.org/american-english",
-    `_${cefrLevel}`,
+    `_${cacheFileNamePrefix}`,
     {
       headers: {
         "content-type": "application/x-www-form-urlencoded",
       },
-      body: `filter_custom_Level%5B%5D=${CEFR_LEVELS[cefrLevel]}&limit=0`, // no limit
+      body: body,
       method: "POST",
     }
   );
@@ -54,6 +60,13 @@ function getWordFamilies(infoBody: ParentNode) {
   });
 }
 
+function findWordInfoBody(document: Document, word: string, level: string) {
+  const node = [...document.querySelectorAll(`.label-${level}`)].find((levelNode) => {
+    return closest(levelNode, '.info.sense')?.querySelector('.sense_title').textContent === word;
+  })
+  return node.parentNode;
+}
+
 async function fetchWordDetails(word: string, wordTr: ParentNode): Promise<WordDetail> {
   const level = wordTr.querySelector(".label").textContent;
   // @ts-ignore: Property 'href' does not exist on type 'Element'.ts(2339)
@@ -61,7 +74,7 @@ async function fetchWordDetails(word: string, wordTr: ParentNode): Promise<WordD
   const document = new JSDOM(
     await fetchHtml(wordDetailsUrl, word)
   ).window.document;
-  const infoBody = document.querySelector(`.label-${level}`).parentNode;
+  const infoBody = findWordInfoBody(document, word, level);
   return {
     word: word,
     definition: infoBody.querySelector(".definition").textContent,
@@ -76,7 +89,7 @@ async function fetchWordDetails(word: string, wordTr: ParentNode): Promise<WordD
   };
 }
 
-async function fetchWordsDetails(cefrLevel: string, wordsListFilePath: fs.PathOrFileDescriptor): Promise<WordDetail[]> {
+async function fetchWordsDetails(wordsListFilePath: fs.PathOrFileDescriptor, cefrLevel: string | undefined): Promise<WordDetail[]> {
   const words = fs.readFileSync(wordsListFilePath, "utf8").split("\n");
   const document = await fetchWordsHtmlByLevel(cefrLevel);
 

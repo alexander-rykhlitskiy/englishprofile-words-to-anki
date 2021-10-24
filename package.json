@@ -14,9 +14,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/yargs": "^17.0.4",
     "csv-stringify": "^5.6.5",
     "jsdom": "^18.0.0",
-    "node-fetch": "^3.0.0"
+    "node-fetch": "^3.0.0",
+    "yargs": "^17.2.1"
   },
   "devDependencies": {
     "@types/jsdom": "^16.2.13",
