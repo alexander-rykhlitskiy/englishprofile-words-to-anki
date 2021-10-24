@@ -67,10 +67,7 @@ function findWordInfoBody(document: Document, word: string, level: string) {
   return node.parentNode;
 }
 
-async function fetchWordDetails(word: string, wordTr: ParentNode): Promise<WordDetail> {
-  const level = wordTr.querySelector(".label").textContent;
-  // @ts-ignore: Property 'href' does not exist on type 'Element'.ts(2339)
-  const wordDetailsUrl = wordTr.querySelector("td:last-child a").href;
+async function fetchWordDetails(word: string, level: string, wordDetailsUrl: string): Promise<WordDetail> {
   const document = new JSDOM(
     await fetchHtml(wordDetailsUrl, word)
   ).window.document;
@@ -93,7 +90,7 @@ async function fetchWordsDetails(wordsListFilePath: fs.PathOrFileDescriptor, cef
   const words = fs.readFileSync(wordsListFilePath, "utf8").split("\n");
   const document = await fetchWordsHtmlByLevel(cefrLevel);
 
-  const wordTds = [...document.querySelectorAll("td:first-child")];
+  const trs = document.querySelectorAll('tbody tr');
 
   const wordsDetails = [];
   for (const word of words) {
@@ -102,9 +99,22 @@ async function fetchWordsDetails(wordsListFilePath: fs.PathOrFileDescriptor, cef
     console.log(`Processing the word "${word}"`);
 
     try {
+      let level: string, wordDetailsUrl: string;
       // xpath works really slow. //td[contains(text(),'${word}')] - about 50 seconds
-      const wordTr = wordTds.find((td) => td.textContent === word).parentNode;
-      const wordDetails = await fetchWordDetails(word, wordTr);
+      for (const tr of trs) {
+        if (tr.children[0].textContent === word) {
+          // @ts-ignore: Property 'href' does not exist on type 'Element'.ts(2339)
+          wordDetailsUrl = tr.querySelector("td:last-child a").href;
+          if (wordDetailsUrl.match(/\d+$/)) { // some urls are invalid and look like 'https://www.englishprofile.org/american-english/words/usdetail/'
+            level = tr.querySelector(".label").textContent;
+            break;
+          }
+        }
+      }
+      if (!level || !wordDetailsUrl) {
+        throw new Error(`Level (${level}) or wordDetailsUrl (${wordDetailsUrl}) is blank`);
+      }
+      const wordDetails = await fetchWordDetails(word, level, wordDetailsUrl);
       wordsDetails.push(wordDetails);
     } catch (error) {
       console.error(`Error processing the word "${word}":`, error);

@@ -19,11 +19,6 @@ const argv = yargs(process.argv.slice(2)).options({
       type: 'string',
       demandOption: true
   },
-  'exactMatch': {
-      alias: 'm',
-      description: 'Whether the word has to match exactly with an item on the word page e.g. https://www.englishprofile.org/american-english/words/usdetail/3445 (choose if you look for phrases).',
-      type: 'boolean',
-  },
 }).parseSync();
 
 const wordsDetails = await fetchWordsDetails(argv.wordsFile, argv.cefrLevel);
