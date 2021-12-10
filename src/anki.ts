@@ -1,22 +1,21 @@
-import { WordDetail } from "./word-details";
+import * as fs from 'fs';
+import * as path from "path";
+import { stringify } from 'csv-stringify';
 
-function getATag(wordDetails: WordDetail) {
-  return `<a href='${wordDetails.url}'>${wordDetails.word}</a>`;
+import { WordInfoData } from './english-profile';
+
+function getATag(wordDetails: WordInfoData) {
+  return `<a href='${wordDetails.wordDetailsUrl}'>${wordDetails.baseWord}</a>`;
 }
 
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
 function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
-function convertWordDetailsToCsvRowItems(wordDetails: WordDetail): string[] {
-  const front = wordDetails.definition;
-  let back: string;
-  const tags = wordDetails.level;
-
+function convertWordDetailsToCsvRowItems(wordDetails: WordInfoData): string[] {
   let linkAdded = false;
-  const regex = new RegExp(`(\\W|^)(${escapeRegExp(wordDetails.word)})(\\W|$)`, "i");
-  const examples = wordDetails.examples.map((example, index) => {
+  const regex = new RegExp(`(\\W|^)(${escapeRegExp(wordDetails.baseWord)})(\\W|$)`, "i");
+  const examples = wordDetails.dictionaryExamples.map((example, index) => {
     let htmlExample = example;
     if (example.match(regex)) {
       linkAdded = true;
@@ -30,8 +29,13 @@ function convertWordDetailsToCsvRowItems(wordDetails: WordDetail): string[] {
     }
     return htmlExample;
   });
-  back = `${examples.join("<br>")}<br><br>[${wordDetails.ipa}]<br><br>`;
 
+  
+  const tags = [ wordDetails.level, wordDetails.partOfSpeech, wordDetails.grammar ]
+    .filter(x => x)
+    .join(',');
+  const front = wordDetails.definition;
+  let back = `${examples.join("<br>")}<br><br>[${wordDetails.transcription}]<br><br>`;;
   if (wordDetails.wordFamilies.length) {
     const family = wordDetails.wordFamilies
       .map((family) => `<b>${family.partOfSpeech}</b> ${family.words.join("")}`)
@@ -46,4 +50,30 @@ function convertWordDetailsToCsvRowItems(wordDetails: WordDetail): string[] {
   return [front, back, tags];
 }
 
-export { convertWordDetailsToCsvRowItems };
+function ensureDirExists(filename: string) {
+  const dir = path.dirname(filename)
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+function prepageFileName(filename: string, extension: string) {
+  const baseName = path.basename(filename, path.extname(filename));
+  return path.join(path.dirname(filename), baseName + extension);
+}
+
+export async function createAnkiCsvImportFile(words: WordInfoData[], filename: string): Promise<void> {
+  console.log(`Creating anki file`);
+
+  const csvRecords = words.map(word =>
+    convertWordDetailsToCsvRowItems(word)
+  );
+
+  const fullFileName = prepageFileName(filename, '.csv');
+  stringify(csvRecords, (err, output) => {
+    ensureDirExists(fullFileName);
+    fs.writeFileSync(fullFileName, output);
+  });
+
+  console.log(`Package has been generated: ${fullFileName}`);
+}

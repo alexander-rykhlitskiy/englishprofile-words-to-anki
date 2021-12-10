@@ -1,11 +1,17 @@
 {
   "compilerOptions": {
-    "module": "esnext", // for top-level `await`
-    "outDir": "./built",
-    "allowJs": true,
-    "target": "es2021", // code compiled to ES6 also works, ES5 doesn't
-    "moduleResolution": "node", // for `import { JSDOM } from "jsdom";`
-    "allowSyntheticDefaultImports": true, // for `import stringify from "csv-stringify";`
+    "target": "es6",
+    "module": "commonjs",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "sourceMap": true,
   },
-  "include": ["index.ts"]
+  "exclude":[
+    "./node_modules"
+  ],
 }
