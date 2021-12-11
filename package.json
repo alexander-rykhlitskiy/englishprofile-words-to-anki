@@ -17,7 +17,7 @@
   "dependencies": {
     "axios": "^0.24.0",
     "csv-stringify": "^6.0.4",
-    "jsdom": "^19.0.0",
+    "linkedom": "^0.13.0",
     "yargs": "^17.3.0"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { JSDOM } from 'jsdom';
+import { parseHTML } from 'linkedom';
 
 import { WordInfoData, WordMetadata } from './models';
 
@@ -6,9 +6,22 @@ function extractTextContent(node) {
   return node?.textContent?.trim() ?? '';
 }
 
+function extractHrefContent(node, baseNode) {
+  let href = node?.['href'] ?? '';
+  if (href?.startsWith("/")) {
+    const baseUrlValue = baseNode?.getAttribute("href");
+    if (baseUrlValue) {
+      const baseUrl = new URL(baseUrlValue).origin;
+      href = baseUrl + href;
+    }
+  }
+  return href;
+}
+
 export function parseListHtml(html: string): WordMetadata[] {
-  const wordsDom = new JSDOM(html);
+  const wordsDom = parseHTML(html);
   const document = wordsDom.window.document;
+  const baseUrlNode = document.querySelector('head base');
 
   let result = [];
   const trsNodes = document.querySelectorAll('tbody tr');
@@ -18,7 +31,7 @@ export function parseListHtml(html: string): WordMetadata[] {
     const level = extractTextContent(trNode.querySelector('td:nth-child(3) .label'));
     const partOfSpeech = extractTextContent(trNode.querySelector('td:nth-child(4)'));
     const topic = extractTextContent(trNode.querySelector('td:nth-child(5)'));
-    const wordDetailsUrl = trNode.querySelector('td:last-child a')["href"];
+    const wordDetailsUrl = extractHrefContent(trNode.querySelector('td:last-child a'), baseUrlNode);
     
     if (!wordDetailsUrl) {
       throw new Error(`wordDetailsUrl (${wordDetailsUrl}) is blank`);
@@ -89,7 +102,7 @@ function sameOrEmpty(value1: string, value2: string) {
 }
 
 export async function parseWordHtml(html: string, word: WordMetadata): Promise<WordInfoData> {
-  const wordsDom = new JSDOM(html);
+  const wordsDom = parseHTML(html);
   const document = wordsDom.window.document;
 
   let expectedWordTitle = `${word.baseWord}`;
