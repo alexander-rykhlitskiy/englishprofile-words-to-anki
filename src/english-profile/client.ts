@@ -1,7 +1,7 @@
 import { CEFR_LEVELS, TOPICS } from '../models';
 import { fetchHtmlCached } from './httpUtils';
 
-export async function fetchWordsHtml(levelFilter?: string[], topicFilter?: string) {
+export async function fetchWordsHtml(useAmerican: boolean, levelFilter?: string[], topicFilter?: string) {
   let formData = new URLSearchParams();
   formData.append('limit', '0');
   if (levelFilter) {
@@ -13,9 +13,12 @@ export async function fetchWordsHtml(levelFilter?: string[], topicFilter?: strin
     formData.append('filter_custom_Topic', `${TOPICS[topicFilter]}`);
   }
 
+  const url = useAmerican
+    ? 'https://www.englishprofile.org/american-english'
+    : 'https://www.englishprofile.org/wordlists/evp';
   let body = formData.toString();
   const html = await fetchHtmlCached(
-    'https://www.englishprofile.org/wordlists/evp',
+    url,
     {
       method: 'POST',
       headers: {

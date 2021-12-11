@@ -2,6 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import axios, { AxiosRequestConfig } from 'axios';
 
+const FETCH_DELAY = 1000;
+
 function pathify(string: string) {
   return string.replace(/\W/g, '_');
 }
@@ -26,7 +28,7 @@ export async function fetchHtmlCached(url: string, fetchOptions: AxiosRequestCon
   } else {
     fs.mkdirSync(cacheDirPath, { recursive: true });
     const html = await fetchHtml(url, fetchOptions);
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, FETCH_DELAY));
     fs.writeFileSync(cachePath, html);
     console.debug(` page cached: ${url}`);
     return html;

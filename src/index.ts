@@ -7,6 +7,13 @@ import { createAnkiCsvImportFile } from './anki';
 
 async function execute() {
   const argv = await yargs(process.argv)
+    .option('useAmerican', {
+      alias: 'a',
+      description: 'Use American English',
+      switch: true,
+      type: 'boolean',
+      default: false,
+    })
     .option('filterLevel', {
       alias: 'l',
       description: 'Filter level',
@@ -36,7 +43,7 @@ async function execute() {
 
   const wordsFilter: string[] = await loadWordListFileIfSet(argv.filterWordList);
 
-  const wordsDetails = await fetchEnglishProfile(argv.filterLevel, argv.filterTopic, wordsFilter);
+  const wordsDetails = await fetchEnglishProfile(argv.useAmerican, argv.filterLevel, argv.filterTopic, wordsFilter);
 
   await createAnkiCsvImportFile(wordsDetails, argv.outputFile);
 }

@@ -1,16 +1,17 @@
 import { fetchWordsHtml, fetchWordDetails } from './client';
-import { WordInfoData, WordMetadata } from './models';
+import { WordInfoData } from './models';
 import { parseListHtml, parseWordHtml } from './parser';
 
 export * from './models';
 
 export async function fetchEnglishProfile(
+    useAmerican: boolean,
     levelsFilter?: string[],
     topicFilter?: string,
     wordsFilter?: string[])
     : Promise<WordInfoData[]> {
   console.log(`Processing the word list`);
-  const listHtml = await fetchWordsHtml(levelsFilter, topicFilter);
+  const listHtml = await fetchWordsHtml(useAmerican, levelsFilter, topicFilter);
   const wordList = parseListHtml(listHtml);
   console.log(`Total word count: ${wordList.length})`);
 
