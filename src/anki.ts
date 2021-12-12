@@ -27,10 +27,13 @@ function convertWordDetailsToCsvRowItems(wordDetails: WordInfoData): string[] {
     if (index > 0) {
       htmlExample = `[${htmlExample}]`;
     }
+    if (index === 1) {
+      htmlExample = `<br>${htmlExample}`;
+    }
     return htmlExample;
   });
 
-  
+
   const tags = [ wordDetails.level, wordDetails.partOfSpeech, wordDetails.grammar ]
     .filter(x => x)
     .join(',');
