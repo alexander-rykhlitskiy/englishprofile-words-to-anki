@@ -1,6 +1,7 @@
 import { parseHTML } from 'linkedom';
 
 import { WordInfoData, WordMetadata } from './models';
+import { resolveMeaning } from './meaningResolver';
 
 function extractTextContent(node) {
   return node?.textContent?.trim() ?? '';
@@ -59,7 +60,7 @@ export function parseListHtml(html: string): WordMetadata[] {
 function parseWordInfo(word: WordMetadata, infoNode: ParentNode, baseInfoNode: ParentNode): WordInfoData {
   try {
 
-    const wordFamilyNodes = baseInfoNode.querySelectorAll('.wf_pos_block');
+    const wordFamilyNodes = baseInfoNode?.querySelectorAll('.wf_pos_block') ?? [];
     const dictionaryExampleNodes = infoNode.querySelectorAll('.example .blockquote');
   
     const wordFamilies = Array.from(wordFamilyNodes).map((div) => {
@@ -79,9 +80,9 @@ function parseWordInfo(word: WordMetadata, infoNode: ParentNode, baseInfoNode: P
     return {
       baseWord: word.baseWord,
       wordDetailsUrl: word.wordDetailsUrl,
-      headword: extractTextContent(baseInfoNode.querySelector('.headword')),
-      partOfSpeech: extractTextContent(baseInfoNode.querySelector('.pos')),
-      transcription: extractTextContent(baseInfoNode.querySelector('.written')),
+      headword: extractTextContent(baseInfoNode?.querySelector('.headword')),
+      partOfSpeech: extractTextContent(baseInfoNode?.querySelector('.pos')),
+      transcription: extractTextContent(baseInfoNode?.querySelector('.written')),
       wordFamilies,
       infoTitle: extractTextContent(infoNode.querySelector('.sense_title')),
       level: extractTextContent(infoNode.querySelector('.label')),
@@ -97,42 +98,26 @@ function parseWordInfo(word: WordMetadata, infoNode: ParentNode, baseInfoNode: P
 	}
 }
 
-function sameOrEmpty(value1: string, value2: string) {
-  return value1 === '' || value2 === '' || value1 === value2;
-}
-
 export async function parseWordHtml(html: string, word: WordMetadata): Promise<WordInfoData> {
   const wordsDom = parseHTML(html);
   const document = wordsDom.window.document;
 
-  let expectedWordTitle = `${word.baseWord}`;
-  if (word.guideWord){
-    expectedWordTitle += ` (${word.guideWord})`;
-  }
+  const meanings: WordInfoData[] = [];
 
-  const resolvedWordDetailsList: WordInfoData[] = [];
-  const baseInfoNodes = document.querySelectorAll('.pos_section');
+  const baseInfoNodes = document.querySelectorAll('.evp_details > .pos_section');
   for (const baseInfoNode of baseInfoNodes) {
     const infoNodes = baseInfoNode.querySelectorAll('.info.sense');
     for (const infoNode of infoNodes) {
       const resolvedWordDetails = parseWordInfo(word, infoNode, baseInfoNode);
-      if (resolvedWordDetails.infoTitle == expectedWordTitle) {
-        return resolvedWordDetails;
-      }
-      resolvedWordDetailsList.push(resolvedWordDetails);
+      meanings.push(resolvedWordDetails);
     }
   }
-  console.info(`'${word.baseWord}': no exact meaning found for '${expectedWordTitle}' on ${word.wordDetailsUrl}, trying to fallback`);
-  
-  expectedWordTitle = `${word.baseWord}`;
-  const fallbackMatchedList = resolvedWordDetailsList
-    .filter(x => sameOrEmpty(x.infoTitle, expectedWordTitle)
-      && sameOrEmpty(x.level, word.level)
-      && sameOrEmpty(x.partOfSpeech, word.partOfSpeech));
-  if (fallbackMatchedList.length === 1) {
-    return fallbackMatchedList[0];
+
+  const infoNodes = document.querySelectorAll('.evp_details > .info.sense');
+  for (const infoNode of infoNodes) {
+    const resolvedWordDetails = parseWordInfo(word, infoNode, null);
+    meanings.push(resolvedWordDetails);
   }
 
-  console.warn(`'${word.baseWord}': no exact (${fallbackMatchedList.length}) fallback meaning found for '${expectedWordTitle}' on ${word.wordDetailsUrl}`);
-  return null;
+  return resolveMeaning(word, meanings);
 }
