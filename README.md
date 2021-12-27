@@ -1,25 +1,19 @@
 # EnglishProfile words to Anki
 
-https://www.englishprofile.org/american-english
-
-Script to download EnglishProfile words grouped by level. It generates CSV for importing from Anki.
+Script to download [englishprofile.org](https://www.englishprofile.org/wordlists/evp) words grouped by level. It generates CSV for importing from Anki.
 
 ## Usage
+
 ```bash
-npm i
+npm install
 
-npm run generate-csv -- --help
-
-npx tsc --watch # or npx tsc
-node built/index.js --wordsFile /path/to/file/with/words.txt
-
-node built/index.js --cefrLevel B2 --wordsFile /path/to/file/with/words.txt
-# or
-npm run generate-csv -- --cefrLevel B2 --wordsFile /path/to/file/with/words.txt
-npm run-script generate-csv -- -w words_lists/idioms.txt
+npm start -- --help
+npm start -- --filterLevel A1 --filterTopic technology --outputFile ./out/result
 ```
 
-Result CSV file is located in the root folder of this repository. Its name is the same as the name of the file with words, but with `csv` extension. So for the example above it's going to be `words.csv`.
+## Debugging
+
+Debugging is configured with Visual Studio Code.
 
 ## ToDo
 
